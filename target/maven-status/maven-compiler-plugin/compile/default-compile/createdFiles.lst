@@ -1,0 +1,3 @@
+com\mkyong\web\controller\HelloController.class
+com\mkyong\web\service\UserService.class
+com\mkyong\web\service\UserServiceImpl.class
