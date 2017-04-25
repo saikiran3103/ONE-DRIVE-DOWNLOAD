@@ -1,8 +1,11 @@
 package com.mkyong.web.controller;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
 
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Controller;
@@ -48,7 +51,7 @@ public class HelloController {
 			return service.authorizeAndGetUserToken();
 		}
 
-		@RequestMapping(value="/api/users/redirect",method = RequestMethod.GET )
+		@RequestMapping(value="/redirect",method = RequestMethod.GET )
 		public String  readToken( @RequestParam(value = "code", required = false) String code, HttpServletRequest request) throws URISyntaxException {
 //			System.out.println(request.get;
 			String path =request.getPathInfo();
@@ -60,4 +63,9 @@ public class HelloController {
 			return "test";
 		}
 
+		@RequestMapping(method = RequestMethod.POST, value="download")
+	    public List<String>   finaldownload(TokenAndPath tokenAndPath ) throws URISyntaxException, IOException {
+			return service.finaldownload(tokenAndPath);
+		}
+		
 }

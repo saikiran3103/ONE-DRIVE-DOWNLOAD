@@ -70,5 +70,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/java dependencies/http-core-4.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
