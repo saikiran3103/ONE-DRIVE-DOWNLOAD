@@ -123,10 +123,13 @@ public class UserServiceImpl implements UserService {
 		for (String downloadUrl:downloadUrls){
 			
 			System.out.println("saveDir------>"+saveDir);
-			Runnable download= new MultiDownLoadExecutor(downloadUrl, saveDir);
+			
+			// multithreading framework for downloading files
+			Runnable download= new MultiDownLoadExecutor(downloadUrl, dir.getPath());
 			executor.execute(download);
 			}
-		
+		 executor.shutdown();
+	        
 	
 		return "display";
 	}
