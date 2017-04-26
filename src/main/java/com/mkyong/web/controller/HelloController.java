@@ -64,8 +64,19 @@ public class HelloController {
 		}
 
 		@RequestMapping(method = RequestMethod.POST, value="download")
-	    public List<String>   finaldownload(TokenAndPath tokenAndPath ) throws URISyntaxException, IOException {
+	    public String   finaldownload(TokenAndPath tokenAndPath ) throws URISyntaxException, IOException {
 			return service.finaldownload(tokenAndPath);
+		}
+		
+		@RequestMapping(method = RequestMethod.POST, value="path")
+	    public String getTokenAndPath(HttpServletRequest request ) throws URISyntaxException, IOException {
+			System.out.println(request.getParameter("param1"));
+			System.out.println(request.getParameter("param2"));
+			TokenAndPath tokenAndPath=new TokenAndPath();
+			tokenAndPath.setToken(request.getParameter("param1"));
+			tokenAndPath.setPath(request.getParameter("param2"));
+			return service.finaldownload(tokenAndPath);
+			//return "displayPath";
 		}
 		
 }

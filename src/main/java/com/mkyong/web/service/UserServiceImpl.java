@@ -52,18 +52,19 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<String> finaldownload(TokenAndPath tokenAndPath) throws IOException, IllegalStateException, JsonSyntaxException {
+	public String finaldownload(TokenAndPath tokenAndPath) throws IOException, IllegalStateException, JsonSyntaxException {
 		// TODO Auto-generated method stub
 		
-		
+		String access_token= tokenAndPath.getToken();
 
-		String tokenheader = "Bearer"+" "+"eyJ0eXAiOiJKV1QiLCJub25jZSI6IkFRQUJBQUFBQUFCbmZpRy1tQTZOVGFlN0NkV1c3UWZkVkxuNTFUbXhWUEp2eTA0bml6MTV4cnZDSi0yZ3JyMktMRkhmcWxTOEF5SHFmR1VwbTlBLVdaSHZ4YkY2LVF2QWxIT0tubEN6am8zd2VscTlsS0tFZ3lBQSIsImFsZyI6IlJTMjU2IiwieDV0IjoiYTNRTjBCWlM3czRuTi1CZHJqYkYwWV9MZE1NIiwia2lkIjoiYTNRTjBCWlM3czRuTi1CZHJqYkYwWV9MZE1NIn0.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9lMDc5M2QzOS0wOTM5LTQ5NmQtYjEyOS0xOThlZGQ5MTZmZWIvIiwiaWF0IjoxNDkzMTU4MTE2LCJuYmYiOjE0OTMxNTgxMTYsImV4cCI6MTQ5MzE2MjAxNiwiYWNyIjoiMSIsImFpbyI6IlkyWmdZTkJhOHY1VmR2ajhTVmRaK1ZyMWoxaVYvYmxnK2tzbGJFOVYrTW4wejVrbFBjc0EiLCJhbXIiOlsid2lhIiwibWZhIl0sImFwcF9kaXNwbGF5bmFtZSI6InRlc3QgQXBwbGljYXRpb24gMiIsImFwcGlkIjoiYzAwYTRjMjYtZTY0Yi00NTliLTkxZjYtMzE1NzFiODAyYWU0IiwiYXBwaWRhY3IiOiIwIiwiZmFtaWx5X25hbWUiOiJBa2tpcmVkZHkiLCJnaXZlbl9uYW1lIjoiU2FpIEtpcmFuIiwiaXBhZGRyIjoiNjUuMjIyLjI1NS4yIiwibmFtZSI6IkFra2lyZWRkeSwgU2FpIEtpcmFuIiwib2lkIjoiMGM5ODViZDgtZmIyMS00YTcyLWFiMGYtNGMzMGEzNjJmMTc5Iiwib25wcmVtX3NpZCI6IlMtMS01LTIxLTMyOTA2ODE1Mi0xNDU0NDcxMTY1LTE0MTcwMDEzMzMtNTg1MTAzOSIsInBsYXRmIjoiMyIsInB1aWQiOiIxMDAzMDAwMEEwOTUxNzkxIiwic2NwIjoiRmlsZXMuUmVhZC5BbGwgRmlsZXMuUmVhZFdyaXRlIEZpbGVzLlJlYWRXcml0ZS5BbGwiLCJzdWIiOiJ3bGI1VEFqSlpJbURHS3g4WDlxSExUN2N5Sl9JcjlIc2dFYlhFcTlsejhVIiwidGlkIjoiZTA3OTNkMzktMDkzOS00OTZkLWIxMjktMTk4ZWRkOTE2ZmViIiwidW5pcXVlX25hbWUiOiJzYWkua2lyYW4uYWtraXJlZGR5QGFjY2VudHVyZS5jb20iLCJ1cG4iOiJzYWkua2lyYW4uYWtraXJlZGR5QGFjY2VudHVyZS5jb20iLCJ1dGkiOiJWYVM5bHdPNkNVR2FOc0N0eldvdEFBIiwidmVyIjoiMS4wIn0.Fi8iazzoNofEikQqhxGlM6j3mi_SBMr8Q_LUhAeT2PwHjGXp6uOOltzcR8-J8lYarlQuHSF4GGpvOVecwkI8AZ6fh9FncyY-4-XOnEpIyG5sXLB5lRkYF_VH6LA6OI5D1EHO20YqWzZXvcobs3D4onyg3WoAzShOTj63P_zKh1eOTh1gbencBZJSxiFgXNqxaAFklJ87kZx-O1SN8fF634wsK0PP4oSYYAkD_UAh3rPK4fK12OFyd2JQq_SNl7AhbThyeBU_iyjCbJ_ghj-hDVmT4kykCViL0Bn8G0In9RMpstV3-Y04JwUj1Jh5MQadDYmtj8dgNlIWPdHBzygKFg";
+		String tokenheader = "Bearer"+" "+access_token;
 		
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		
 		String commonUrl ="https://graph.microsoft.com/beta/me/drive/root:/";
 		
-		String base_path = "https://myoffice.accenture.com/personal/sai_kiran_akkireddy_accenture_com/Documents/testDownload";
+	//	String base_path = "https://myoffice.accenture.com/personal/sai_kiran_akkireddy_accenture_com/Documents/testDownload";
+		String base_path = tokenAndPath.getPath();
 		
 		int i =base_path.lastIndexOf("Documents")+10;
 		String child =":/children";
@@ -99,12 +100,12 @@ public class UserServiceImpl implements UserService {
 		
 		System.out.println(downloadUrls);
 		
-		System.out.println("outerMetaData"+outerMetaData);
+		
 		
 		httpClient.getConnectionManager().shutdown();
 		
 	
-		return downloadUrls;
+		return "display";
 	}
 
 }
