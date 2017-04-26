@@ -1,28 +1,24 @@
 package com.mkyong.web.service;
 
 import java.awt.Desktop;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.net.SyslogAppender;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -115,12 +111,21 @@ public class UserServiceImpl implements UserService {
 		httpClient.getConnectionManager().shutdown();
 		
 		System.out.println(downloadUrls);
+		
+		ExecutorService executor = Executors.newFixedThreadPool(downloadUrls.size());
+//		for (String downloadUrl:downloadUrls){
+//		System.out.println("saveDir------>"+saveDir);
+//		UserServiceImpl.downloadFile(downloadUrl, dir.getPath());
+//		
+//		}
+		
+		
 		for (String downloadUrl:downloadUrls){
-		System.out.println("saveDir------>"+saveDir);
-		UserServiceImpl.downloadFile(downloadUrl, dir.getPath());
-		
-		}
-		
+			
+			System.out.println("saveDir------>"+saveDir);
+			Runnable download= new MultiDownLoadExecutor(downloadUrl, saveDir);
+			executor.execute(download);
+			}
 		
 	
 		return "display";
