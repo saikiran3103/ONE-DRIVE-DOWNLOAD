@@ -4,8 +4,8 @@
 </HEAD>
 <BODY BGCOLOR="FFFFFF">
 
-<HR>
-<H1 id="demo">This is a Header</H1>
+
+
 <form name="myForm" action="path" method="POST">
 Enter the shared  One drive URL : <input id="text1" type="text" >
 <input id="param1" type="hidden" name="param1" value="Test">
@@ -37,7 +37,7 @@ function submitform(){
 		    document.getElementById("param1").value = obj.access_token;   //value2x
 		    document.myForm.submit();
 }
-document.getElementById("demo").innerHTML = window.location.hash;
+
 
 </script>
 

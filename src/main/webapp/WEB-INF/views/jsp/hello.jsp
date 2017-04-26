@@ -10,7 +10,9 @@
 <link href="${bootstrapCss}" rel="stylesheet" />
 <link href="${coreCss}" rel="stylesheet" />
 </head>
- 
+<body>
+
+ <%--
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
 	<div class="navbar-header">
@@ -62,14 +64,22 @@
 		</p>
 	</div>
   </div>
- 
+ --%>
  
   <hr>
-  <footer>
-	<p>&copy; Mkyong.com 2015</p>
-  </footer>
-</div>
  
+<div class="ms-Grid-col ms-u-mdPush1 ms-u-md9 ms-u-lgPush1 ms-u-lg6">
+			<div>
+				<p class="ms-font-xl">Use the button below to connect to Office 365.</p>
+				
+				<form action="token" method="GET">
+
+<input type="submit" value="Connect to Office 365" />
+</form>
+				
+					
+			</div>
+ </div>
 <spring:url value="/resources/core/css/hello.js" var="coreJs" />
 <spring:url value="/resources/core/css/bootstrap.min.js" var="bootstrapJs" />
  
