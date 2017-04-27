@@ -72,17 +72,25 @@ public class UserServiceImpl implements UserService {
 		String commonUrl ="https://graph.microsoft.com/beta/me/drive/root:/";
 		
 	//	String base_path = "https://myoffice.accenture.com/personal/sai_kiran_akkireddy_accenture_com/Documents/testDownload";
-		String base_path = tokenAndPath.getPath();
+		String base_path = tokenAndPath.getPath();//replaceAll("%20", " ");
 		
-		int i =base_path.lastIndexOf("Documents")+10;
+		int indexAfterDocuments =base_path.lastIndexOf("Documents")+10;
+		
 		String child =":/children";
 		
-		String file = base_path.substring(i);
+		String file = base_path.substring(indexAfterDocuments);
+		
+		String MakeLocalDirectory =file.replace("%20", " ");
+		
+		
 		String completeurl= commonUrl+file+child;
+		
 		System.out.println("saiiii"+""+file);
-		File dir = new File(saveDir+"\\"+file);
+		
+		File dir = new File(saveDir+"\\"+MakeLocalDirectory);
 		dir.mkdirs();
 		
+		System.out.println("dir.getPath()"+dir.getPath());
 		
 		
 		System.out.println(completeurl);
@@ -93,7 +101,7 @@ public class UserServiceImpl implements UserService {
 		request.addHeader("Authorization", tokenheader);
 		
 		
-		
+		//Send the response
 		HttpResponse response = httpClient.execute(request);
 		final org.apache.http.HttpEntity entity = (org.apache.http.HttpEntity) response.getEntity();
 		final String responseString = EntityUtils.toString( (org.apache.http.HttpEntity) entity, "UTF-8" );
