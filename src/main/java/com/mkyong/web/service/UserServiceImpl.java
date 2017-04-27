@@ -16,9 +16,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
 	
 	private static final int BUFFER_SIZE = 4096;
 	
+	private MakeDirectoryUtility makeDirectoryUtility;
 	private String home = System.getProperty("user.home");
    
    private String saveDir = home;
@@ -87,57 +90,88 @@ public class UserServiceImpl implements UserService {
 		
 		System.out.println("saiiii"+""+file);
 		
-		File dir = new File(saveDir+"\\"+MakeLocalDirectory);
+		
+		//making a directory
+				File dir = new File(saveDir+"\\"+MakeLocalDirectory);
 		dir.mkdirs();
 		
-		System.out.println("dir.getPath()"+dir.getPath());
-		
-		
+	
 		System.out.println(completeurl);
-		HttpGet request = new HttpGet(completeurl);
+	
 
 		
-		request.addHeader("Content-Type", "text/plain");
-		request.addHeader("Authorization", tokenheader);
 		
 		
 		//Send the response
-		HttpResponse response = httpClient.execute(request);
-		final org.apache.http.HttpEntity entity = (org.apache.http.HttpEntity) response.getEntity();
-		final String responseString = EntityUtils.toString( (org.apache.http.HttpEntity) entity, "UTF-8" );
-		EntityUtils.consume( entity );
-		System.out.println(responseString);
+		
+		
+		String responseFromAdaptor= UserServiceImpl.doGet(completeurl, tokenheader);
 		final Gson gson = new Gson();
-		OuterMetaData outerMetaData =gson.fromJson(responseString, OuterMetaData.class);
+		OuterMetaData outerMetaData =gson.fromJson(responseFromAdaptor, OuterMetaData.class);
 		System.out.println("json form ");
 		System.out.println(outerMetaData);
 		List<String> downloadUrls = new ArrayList<String>();
 		for (MetaDataForFolder metaDataForFolder:outerMetaData.getValue()){
+			
+			if(metaDataForFolder.getFolder()!=null &&
+				(Integer.parseInt(metaDataForFolder.getFolder().getChildCount())>=1)){
+				String insideFoldername=	metaDataForFolder.getName();
+				String localinsideFolderName=insideFoldername.replaceAll("%20", " "); 
+				String OneDriveinsideFolderUrl =commonUrl+file+"/"+insideFoldername+child;
+				
+				File dir1 = new File(dir.getPath()+"\\"+localinsideFolderName);
+				dir1.mkdirs();
+				String responseFromAdaptor1= UserServiceImpl.doGet(OneDriveinsideFolderUrl, tokenheader);
+				OuterMetaData outerMetaData1 =gson.fromJson(responseFromAdaptor1, OuterMetaData.class);
+				List<String> downloadUrls1 = new ArrayList<String>();
+				for (MetaDataForFolder metaDataForFolder1:outerMetaData1.getValue()){
+					String Url1 = metaDataForFolder1.getMicrosoft_graph_downloadUrl();
+					downloadUrls1.add(Url1);
+				}
+				ExecutorService executor1 = Executors.newFixedThreadPool(downloadUrls1.size());
+				for (String downloadUrl1:downloadUrls1){
+					
+					System.out.println("saveDir------>"+saveDir);			
+				// multithreading framework for downloading files
+				Runnable download1= new MultiDownLoadExecutor(downloadUrl1, dir1.getPath());
+					executor1.execute(download1);
+					}
+				 executor1.shutdown();
+			}else{
 			String Url = metaDataForFolder.getMicrosoft_graph_downloadUrl();
 			downloadUrls.add(Url);
+			}
 		}
-		httpClient.getConnectionManager().shutdown();
+		
 		
 		System.out.println(downloadUrls);
 		
-		ExecutorService executor = Executors.newFixedThreadPool(downloadUrls.size());
+// single threaded application takes more response time		
+//		final long startTime = System.currentTimeMillis();si
 //		for (String downloadUrl:downloadUrls){
 //		System.out.println("saveDir------>"+saveDir);
 //		UserServiceImpl.downloadFile(downloadUrl, dir.getPath());
 //		
 //		}
+//		
+//		 final long endTime = System.currentTimeMillis();
+//		System.out.println("Time taken to get Response in millis:" + ( endTime - startTime ));
 		
 		
+		// create the size of the thread pool dynamically
+		ExecutorService executor = Executors.newFixedThreadPool(downloadUrls.size());
+		final long startTime = System.currentTimeMillis();
 		for (String downloadUrl:downloadUrls){
 			
-			System.out.println("saveDir------>"+saveDir);
-			
-			// multithreading framework for downloading files
-			Runnable download= new MultiDownLoadExecutor(downloadUrl, dir.getPath());
+			System.out.println("saveDir------>"+saveDir);			
+		// multithreading framework for downloading files
+		Runnable download= new MultiDownLoadExecutor(downloadUrl, dir.getPath());
 			executor.execute(download);
 			}
 		 executor.shutdown();
-	        
+	
+		 final long endTime = System.currentTimeMillis();
+		System.out.println("Time taken to get Response in millis:" + ( endTime - startTime ));
 	
 		return "display";
 	}
@@ -196,5 +230,20 @@ public class UserServiceImpl implements UserService {
         httpConn.disconnect();
     }
 
-
+	public  static String doGet( final String url,String tokenheader ) throws ClientProtocolException, IOException{
+		 DefaultHttpClient httpClient = new DefaultHttpClient();
+		final HttpGet httpRequest = new HttpGet( url );
+		
+		httpRequest.addHeader("Content-Type", "text/plain");
+		httpRequest.addHeader("Authorization", tokenheader);
+		
+		HttpResponse response = httpClient.execute(httpRequest);
+		final org.apache.http.HttpEntity entity = (org.apache.http.HttpEntity) response.getEntity();
+		final String responseString = EntityUtils.toString( (org.apache.http.HttpEntity) entity, "UTF-8" );
+		EntityUtils.consume( entity );
+		System.out.println(responseString);
+		httpClient.getConnectionManager().shutdown();
+		return responseString;
+		
+	}
 }

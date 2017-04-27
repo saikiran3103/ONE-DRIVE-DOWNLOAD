@@ -70,6 +70,9 @@ public class MetaDataForFolder implements Serializable{
 	     * The raw JSON which is received from the OneDrive API.
 	     */
 	    private String rawJson = "";
+	    
+	    
+	    private Folder folder;
 
 	    /**
 	     * A Url that can be used to download this file's content.
@@ -252,6 +255,14 @@ public class MetaDataForFolder implements Serializable{
 			return microsoft_graph_downloadUrl;
 		}
 
+		public Folder getFolder() {
+			return folder;
+		}
+
+		public void setFolder(Folder folder) {
+			this.folder = folder;
+		}
+
 		/**
 		 * @param microsoft_graph_downloadUrl the microsoft_graph_downloadUrl to set
 		 */
@@ -264,10 +275,10 @@ public class MetaDataForFolder implements Serializable{
 		 */
 		@Override
 		public String toString() {
-			return "FileSystem [id=" + id + ", name=" + name + ", createdBy=" + createdBy + ", createdDateTime="
+			return "MetaDataForFolder [id=" + id + ", name=" + name + ", createdBy=" + createdBy + ", createdDateTime="
 					+ createdDateTime + ", lastModifiedBy=" + lastModifiedBy + ", lastModifiedDateTime="
 					+ lastModifiedDateTime + ", cTag=" + cTag + ", eTag=" + eTag + ", size=" + size + ", webUrl="
-					+ webUrl + ", parentReference=" + parentReference + ", rawJson=" + rawJson
+					+ webUrl + ", parentReference=" + parentReference + ", rawJson=" + rawJson + ", folder=" + folder
 					+ ", microsoft_graph_downloadUrl=" + microsoft_graph_downloadUrl + "]";
 		}
 
