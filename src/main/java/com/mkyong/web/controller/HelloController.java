@@ -6,7 +6,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.xmlbeans.XmlException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.google.gson.JsonSyntaxException;
 import com.mkyong.web.service.UserService;
 
 @Controller
@@ -64,12 +66,12 @@ public class HelloController {
 		}
 
 		@RequestMapping(method = RequestMethod.POST, value="download")
-	    public String   finaldownload(TokenAndPath tokenAndPath ) throws URISyntaxException, IOException {
+	    public String   finaldownload(TokenAndPath tokenAndPath ) throws URISyntaxException, IOException, JsonSyntaxException, IllegalStateException, InterruptedException, NumberFormatException, OpenXML4JException, XmlException {
 			return service.finaldownload(tokenAndPath);
 		}
 		
 		@RequestMapping(method = RequestMethod.POST, value="path")
-	    public String getTokenAndPath(HttpServletRequest request ) throws URISyntaxException, IOException {
+	    public String getTokenAndPath(HttpServletRequest request ) throws URISyntaxException, IOException, JsonSyntaxException, IllegalStateException, InterruptedException, NumberFormatException, OpenXML4JException, XmlException {
 			System.out.println(request.getParameter("param1"));
 			System.out.println(request.getParameter("param2"));
 			TokenAndPath tokenAndPath=new TokenAndPath();
