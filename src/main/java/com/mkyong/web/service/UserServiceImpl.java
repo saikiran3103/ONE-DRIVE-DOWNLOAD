@@ -29,12 +29,17 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.hssf.extractor.ExcelExtractor;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
+import org.apache.poi.POIXMLProperties.*;
+import org.apache.poi.xslf.usermodel.*;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -278,8 +283,68 @@ public class UserServiceImpl implements UserService {
 				}
 				
 				 else if(officefile.getName().endsWith(".xls")|| officefile.getName().endsWith(".XLS")){
-				//	HSSFWorkbook 
+					  ExcelExtractor wd = new ExcelExtractor(new HSSFWorkbook(new FileInputStream(officefile)));
+					  String Content= wd.getText();
+				        wd.close();
+				        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+							
+
+							bw.write(Content);
+
+							// no need to close it.
+							//bw.close();
+
+							System.out.println("Done");
+
+						} catch (IOException e) {
+
+							e.printStackTrace();
+
+						}
 			}
+				 else if (officefile.getName().endsWith(".ppt") || officefile.getName().endsWith(".PPT")|| officefile.getName().endsWith(".PPTX")
+						 || officefile.getName().endsWith(".pptx")){
+					 XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(officefile)); 
+					 
+					 CoreProperties props = ppt.getProperties().getCoreProperties();
+				        String title = props.getTitle();
+				        System.out.println("Title: " + title);
+				        
+				        for (XSLFSlide slide: ppt.getSlides()) {
+				        	System.out.println("Starting slide...");
+				        	XSLFShape[] shapes = slide.getShapes();
+				        
+				        	for (XSLFShape shape: shapes) {
+				        		if (shape instanceof XSLFTextShape) {
+				        	        XSLFTextShape textShape = (XSLFTextShape)shape;
+				        	        String Content = textShape.getText();
+				        	        System.out.println("Text: " + Content);
+				        	   	 try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
+
+										
+
+										bw.write(Content);
+
+										// no need to close it.
+										//bw.close();
+
+										System.out.println("Done");
+
+				        		
+				        		
+				        	} catch (IOException e) {
+
+										e.printStackTrace();
+
+									}
+							        
+				        		}
+				        	}
+				        
+				        }
+				 }
+				
 				 
 				 else if (officefile.getName().endsWith(".pdf") || officefile.getName().endsWith(".PDF")) {
 									        //use file.renameTo() to rename the file
@@ -290,11 +355,12 @@ public class UserServiceImpl implements UserService {
 					 PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
 				
 					    TextExtractionStrategy strategy;
+					  
 					    for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
 					        strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
 					        System.out.println("strategy.getResultantText()"+strategy.getResultantText());
 					     String Content=(strategy.getResultantText());
-try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+					     try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
 
 								
 
@@ -305,7 +371,7 @@ try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
 
 								System.out.println("Done");
 
-							} catch (IOException e) {
+					    	} catch (IOException e) {
 
 								e.printStackTrace();
 
@@ -320,11 +386,11 @@ try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
 				
 			
 			
-			}
+		
 		}
 		}
 		}
-
+		}
 		return "display";
 	
 		
