@@ -29,6 +29,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,8 @@ public class UserServiceImpl implements UserService {
 	private String home = System.getProperty("user.home");
 
 	private String saveDir = home;
+
+	private WordExtractor wd;
 
 	@Override
 	public String authorizeAndGetUserToken() throws URISyntaxException  {
@@ -218,8 +223,58 @@ public class UserServiceImpl implements UserService {
 				//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
 					
 				} 
+				
+
+				else if (officefile.getName().endsWith(".doc") || officefile.getName().endsWith(".DOC")) {
+				//	FileInputStream in=new FileInputStream(officefile);
+					
+					wd = new WordExtractor(new FileInputStream(officefile));
+					String Content = wd.getText();
+					
+					
+					
+
+							try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+								
+
+								bw.write(Content);
+
+								// no need to close it.
+								//bw.close();
+
+								System.out.println("Done");
+
+							} catch (IOException e) {
+
+								e.printStackTrace();
+
+							}
+					
+				//	XWPFDocument doc = new XWPFDocument(in);
+				//	XWPFWordExtractor ex = new XWPFWordExtractor(doc);
+				//	out.write(ex.getText());
+				//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+					
+				} 
 				 else if (officefile.getName().endsWith(".xlsx") || officefile.getName().endsWith(".XLSX")) {
-				//	 out.write(new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText());
+				String Content=new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText();
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+					
+
+					bw.write(Content);
+
+					// no need to close it.
+					//bw.close();
+
+					System.out.println("Done");
+
+				} catch (IOException e) {
+
+					e.printStackTrace();
+
+				}
 				}
 				
 				 else if(officefile.getName().endsWith(".xls")|| officefile.getName().endsWith(".XLS")){
