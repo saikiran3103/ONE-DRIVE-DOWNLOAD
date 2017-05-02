@@ -1,9 +1,11 @@
 package com.mkyong.web.service;
 
 import java.awt.Desktop;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -27,8 +29,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
@@ -177,25 +177,54 @@ public class UserServiceImpl implements UserService {
 			officefile.getName();
 			System.out.println("officefile.getAbsolutePath();"+officefile.getAbsolutePath());
 			 int index = officefile.getAbsolutePath().lastIndexOf(".");
-		        //print filename
-		        //System.out.println(file.getName().substring(0, index));
-		        //print extension
-		        //System.out.println(file.getName().substring(index));
+		        
 		     String textNaming=officefile.getAbsolutePath().substring(0, index);
 		     textNaming.concat(".txt");
 		    String txtpath=    textNaming.concat(".txt");
 		        System.out.println("officefile.getAbsolutePath().substring(index)"+officefile.getAbsolutePath().substring(index));
 		        PrintWriter out = new PrintWriter(new FileOutputStream(txtpath));
+		        final String FILENAME = txtpath;
 			if (!officefile.exists()) {
 				System.out.println("Sorry does not Exists!");
-			}else {
-				if (officefile.getName().endsWith(".docx") || officefile.getName().endsWith(".DOCX")|| officefile.getName().endsWith("doc")) {
-				out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+			}
+			//else
+			{
+				if (officefile.getName().endsWith(".docx") || officefile.getName().endsWith(".DOCX")) {
+				//	FileInputStream in=new FileInputStream(officefile);
+					
+					String Content=(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+					
+
+							try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+								
+
+								bw.write(Content);
+
+								// no need to close it.
+								//bw.close();
+
+								System.out.println("Done");
+
+							} catch (IOException e) {
+
+								e.printStackTrace();
+
+							}
+					
+				//	XWPFDocument doc = new XWPFDocument(in);
+				//	XWPFWordExtractor ex = new XWPFWordExtractor(doc);
+				//	out.write(ex.getText());
+				//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
 					
 				} 
-				 else if (officefile.getName().endsWith(".xlsx") || officefile.getName().endsWith(".XLSX")|| officefile.getName().endsWith(".xls")) {
-					 out.write(new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText());
+				 else if (officefile.getName().endsWith(".xlsx") || officefile.getName().endsWith(".XLSX")) {
+				//	 out.write(new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText());
 				}
+				
+				 else if(officefile.getName().endsWith(".xls")|| officefile.getName().endsWith(".XLS")){
+				//	HSSFWorkbook 
+			}
 				 
 				 else if (officefile.getName().endsWith(".pdf") || officefile.getName().endsWith(".PDF")) {
 									        //use file.renameTo() to rename the file
@@ -209,13 +238,30 @@ public class UserServiceImpl implements UserService {
 					    for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
 					        strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
 					        System.out.println("strategy.getResultantText()"+strategy.getResultantText());
-					        out.write(strategy.getResultantText());
-					   
-						    out.close();
+					     String Content=(strategy.getResultantText());
+try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+								
+
+								bw.write(Content);
+
+								// no need to close it.
+								//bw.close();
+
+								System.out.println("Done");
+
+							} catch (IOException e) {
+
+								e.printStackTrace();
+
+							}
+					        out.close();
 						    pdfReader.close();
+						   
 					    }
 					    
-					    
+					
+				        out.close();
 				
 			
 			
