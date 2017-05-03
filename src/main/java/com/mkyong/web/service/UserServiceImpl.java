@@ -185,9 +185,10 @@ public class UserServiceImpl implements UserService {
 			ExecutorService converterExecutor = Executors.newFixedThreadPool(filesInFolder.size());
 		for(File officefile:filesInFolder){
 			
+			//parallel conversion of all files 
 			Runnable converter= new ParallelConverter(officefile, file);
 			converterExecutor.execute(converter);
-			convertToText(officefile,file);
+			
 		}
 		converterExecutor.shutdown();
 		}
@@ -195,7 +196,7 @@ public class UserServiceImpl implements UserService {
 	
 		
 		}
-
+// single thread to convert office files to txt format
 	private void convertToText(File officefile,String file) throws FileNotFoundException, IOException {
 		officefile.getAbsolutePath();
 		System.out.println("Rading file "+officefile.getName());
