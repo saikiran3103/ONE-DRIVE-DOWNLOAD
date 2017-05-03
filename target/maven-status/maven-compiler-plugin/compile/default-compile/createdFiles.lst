@@ -11,3 +11,4 @@ com\mkyong\web\service\MultiDownLoadExecutor.class
 com\mkyong\web\service\OuterMetaData.class
 com\mkyong\web\service\HttpRestAdaptor.class
 com\mkyong\web\service\UserService.class
+com\mkyong\web\service\InnerFoldersReaderUtility.class

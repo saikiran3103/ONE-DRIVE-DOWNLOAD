@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
 	private static final int BUFFER_SIZE = 4096;
 
-	private MakeDirectoryUtility makeDirectoryUtility;
+	private InnerFoldersReaderUtility innerFoldersReaderUtility;
 	private String home = System.getProperty("user.home");
 
 	private String saveDir = home;
@@ -97,22 +97,23 @@ public class UserServiceImpl implements UserService {
 
 
 
-		String commonUrl ="https://graph.microsoft.com/beta/me/drive/root:/";
+		String commonUrl ="https://graph.microsoft.com/beta/me/";
 
 		//	String base_path = "https://myoffice.accenture.com/personal/sai_kiran_akkireddy_accenture_com/Documents/testDownload";
 		String base_path = tokenAndPath.getPath();//replaceAll("%20", " ");
 
 		// gets the start index after the documents path
 		int indexAfterDocuments =base_path.lastIndexOf("Documents")+10;
-
-		String child =":/children";
+		
 
 		String file = base_path.substring(indexAfterDocuments);
+		
+		String child =":/children";
 
 		String MakeLocalDirectory =file.replace("%20", " ");
 
 
-		String completeurl= commonUrl+file+child;
+		String completeurl= commonUrl+"drive/root:/"+file+child;
 
 		System.out.println("saiiii"+""+file);
 
@@ -144,7 +145,7 @@ public class UserServiceImpl implements UserService {
 
 			if(metaDataForFolder.getFolder()!=null &&
 					(Integer.parseInt(metaDataForFolder.getFolder().getChildCount())>=1)){
-				readingInnerFolders(tokenheader, commonUrl, child, file, dir, gson, metaDataForFolder);
+				readingInnerFolders(tokenheader, commonUrl,base_path, child, file, dir, gson, metaDataForFolder);
 			}else{
 				String Url = metaDataForFolder.getMicrosoft_graph_downloadUrl();
 				downloadUrls.add(Url);
@@ -202,22 +203,35 @@ public class UserServiceImpl implements UserService {
 
 	}
 
-	private void readingInnerFolders(String tokenheader, String commonUrl, String child, String file, File dir,
+	private void readingInnerFolders(String tokenheader, String commonUrl, String base_path,String child, String file, File dir,
 			final Gson gson, MetaDataForFolder metaDataForFolder) throws ClientProtocolException, IOException, InterruptedException {
 
 
+		
+		
+        int indexAfterDocuments =base_path.lastIndexOf("Documents")+10;
+		
+
+		String file1 = base_path.substring(indexAfterDocuments);
+		
+		String path= metaDataForFolder.getParentReference().getPath();
+		
+	
+		
 
 		// get the name of inside folder
 		String insideFoldername=	metaDataForFolder.getName();
 
 		// form the url to get the children files for inside folder
 
-		String OneDriveinsideFolderUrl =commonUrl+file+"/"+insideFoldername+child;
+		String OneDriveinsideFolderUrl =commonUrl+path+"/"+insideFoldername+child;
 
 		// make a local directory with the folder structure
 
 		String localinsideFolderName=insideFoldername.replaceAll("%20", " ");  
+		
 		File innerdir1 = new File(dir.getPath()+"\\"+localinsideFolderName);
+		
 		innerdir1.mkdirs();
 
 		// make a call 
@@ -228,18 +242,19 @@ public class UserServiceImpl implements UserService {
 		List<String> downloadUrls1 = new ArrayList<String>();
 
 		for (MetaDataForFolder metaDataForFolder1:outerMetaData1.getValue()){
-//			if(metaDataForFolder1.getFolder()!=null &&
-//					(Integer.parseInt(metaDataForFolder1.getFolder().getChildCount())>=1)){
-//				readingInnerFolders(tokenheader, commonUrl, child, insideFoldername, innerdir1, gson, metaDataForFolder1);
-			
+			if(metaDataForFolder1.getFolder()!=null &&
+				(Integer.parseInt(metaDataForFolder1.getFolder().getChildCount())>=1)){
+				InnerFoldersReaderUtility.processAndDownloadSubFolders(tokenheader, commonUrl,base_path, child, file1, innerdir1, gson, metaDataForFolder1);
+			}
+			else{
 				String Url1 = metaDataForFolder1.getMicrosoft_graph_downloadUrl();
 				downloadUrls1.add(Url1);
-			
+			}
 		}
 		ExecutorService executor1 = Executors.newFixedThreadPool(downloadUrls1.size());
 		for (String downloadUrl1:downloadUrls1){
 
-			System.out.println("saveDir------>"+saveDir);			
+				
 			// multithreading framework for downloading files
 			Runnable download1= new MultiDownLoadExecutor(downloadUrl1, innerdir1.getPath());
 			executor1.execute(download1);

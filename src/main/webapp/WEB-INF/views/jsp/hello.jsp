@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Maven + Spring MVC</title>
+<title>One Drive Access</title>
  
 <spring:url value="/resources/core/css/hello.css" var="coreCss" />
 <spring:url value="/resources/core/css/bootstrap.min.css" var="bootstrapCss" />
@@ -14,8 +14,8 @@
 
 <article>
   <header>
-    <h1>Download the files from Microsoft One Drive cloud from the shared link</h1>
-    
+  <div style="text-align:center">  <h1>Download the files from Microsoft One Drive cloud from the shared link</h1>
+    </div>
     
   </header>
   
@@ -26,11 +26,11 @@
  
 <div class="ms-Grid-col ms-u-mdPush1 ms-u-md9 ms-u-lgPush1 ms-u-lg6">
 			<div>
-				<p class="ms-font-xl">Use the button below to connect to Office 365.</p>
+			<div style="text-align:center">	<p class="ms-font">Use the button below to connect to Office 365.</p></div>
 				
 				<form action="token" method="GET">
 
-<input type="submit" value="Connect to Office 365" />
+<div style="text-align:center"><input type="submit" value="Connect to Office 365" /></div>
 </form>
 				
 					
