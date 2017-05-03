@@ -56,7 +56,12 @@ public class ParallelConverter implements Runnable {
 		textNaming1.concat(".txt");
 
 		System.out.println("testing sai"+officefile.getParent()+"officefile.getPath()");
-		File textdirectory= new File(officefile.getParent()+"\\"+originalFolderName+" TextFolder\\");
+		
+		 File f = new File(officefile.getPath());
+		    String path = f.getParent();
+		    String textFolderName =path.substring(path.lastIndexOf("\\")+1,path.length()); 
+		    
+		File textdirectory= new File(officefile.getParent()+"\\"+textFolderName+" TextFolder\\");
 		textdirectory.mkdir();
 		int index = officefile.getAbsolutePath().lastIndexOf(".");
 		String textdirectoryString =textdirectory.getPath()+"\\"+textNaming1;   

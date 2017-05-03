@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService {
 		//	String base_path = "https://myoffice.accenture.com/personal/sai_kiran_akkireddy_accenture_com/Documents/testDownload";
 		String base_path = tokenAndPath.getPath();//replaceAll("%20", " ");
 
+		// gets the start index after the documents path
 		int indexAfterDocuments =base_path.lastIndexOf("Documents")+10;
 
 		String child =":/children";
@@ -127,12 +128,15 @@ public class UserServiceImpl implements UserService {
 
 
 
-		//Send the response
+		//make a get call to one drive api
 
 
 		String responseFromAdaptor= UserServiceImpl.doGet(completeurl, tokenheader);
+
 		final Gson gson = new Gson();
+
 		OuterMetaData outerMetaData =gson.fromJson(responseFromAdaptor, OuterMetaData.class);
+
 		System.out.println("json form ");
 		System.out.println(outerMetaData);
 		List<String> downloadUrls = new ArrayList<String>();
@@ -176,268 +180,86 @@ public class UserServiceImpl implements UserService {
 
 		final long endTime = System.currentTimeMillis();
 		System.out.println("Time taken to get Response in millis:" + ( endTime - startTime ));
-		
+
 		if(  (executor.awaitTermination(20, TimeUnit.SECONDS) )){
 			List<File> filesInFolder = Files.walk(Paths.get(dir.getPath()))
-                    .filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .collect(Collectors.toList());
+					.filter(Files::isRegularFile)
+					.map(Path::toFile)
+					.collect(Collectors.toList());
 			ExecutorService converterExecutor = Executors.newFixedThreadPool(filesInFolder.size());
-		for(File officefile:filesInFolder){
-			
-			//parallel conversion of all files 
-			Runnable converter= new ParallelConverter(officefile, file);
-			converterExecutor.execute(converter);
-			
+			for(File officefile:filesInFolder){
+
+				//parallel conversion of all files 
+				Runnable converter= new ParallelConverter(officefile, file);
+				converterExecutor.execute(converter);
+
+			}
+			converterExecutor.shutdown();
 		}
-		converterExecutor.shutdown();
-		}
+		
 		return "display";
-	
-		
-		}
-// single thread to convert office files to txt format
-	private void convertToText(File officefile,String file) throws FileNotFoundException, IOException {
-		officefile.getAbsolutePath();
-		System.out.println("Rading file "+officefile.getName());
-		officefile.getName();
-		
-		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParentFile());
-		System.out.println("officefile.getAbsolutePath();"+officefile.getAbsolutePath());
-		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParent());
-		
-		int nameIndex=officefile.getName().lastIndexOf(".");
-		 String textNaming1=officefile.getName().substring(0, nameIndex);
-		 textNaming1.concat(".txt");
-		 
-		 System.out.println("testing sai"+officefile.getParent()+"officefile.getPath()");
-		File textdirectory= new File(officefile.getParent()+"\\"+file+" TextFolder\\");
-		textdirectory.mkdir();
-		 int index = officefile.getAbsolutePath().lastIndexOf(".");
-		 String textdirectoryString =textdirectory.getPath()+"\\"+textNaming1;   
-		 
-		System.out.println("officefile.getAbsolutePath().substring(index)"+officefile.getAbsolutePath().substring(index));
-		   
-		    final String FILENAME = textdirectoryString;
-		if (!officefile.exists()) {
-			System.out.println("Sorry does not Exists!");
-		}
-		//else
-		{
-			if (officefile.getName().endsWith(".docx") || officefile.getName().endsWith(".DOCX")) {
-			//	FileInputStream in=new FileInputStream(officefile);
-				
-				String Content=(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
-				
 
-						try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
 
-							
-
-							bw.write(Content);
-
-							// no need to close it.
-							//bw.close();
-
-							System.out.println("Done");
-
-						} catch (IOException e) {
-
-							e.printStackTrace();
-
-						}
-				
-			//	XWPFDocument doc = new XWPFDocument(in);
-			//	XWPFWordExtractor ex = new XWPFWordExtractor(doc);
-			//	out.write(ex.getText());
-			//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
-				
-			} 
-			
-
-			else if (officefile.getName().endsWith(".doc") || officefile.getName().endsWith(".DOC")) {
-			//	FileInputStream in=new FileInputStream(officefile);
-				
-				wd = new WordExtractor(new FileInputStream(officefile));
-				String Content = wd.getText();
-				
-				
-				
-
-						try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
-
-							
-
-							bw.write(Content);
-
-							// no need to close it.
-							//bw.close();
-
-							System.out.println("Done");
-
-						} catch (IOException e) {
-
-							e.printStackTrace();
-
-						}
-				
-			//	XWPFDocument doc = new XWPFDocument(in);
-			//	XWPFWordExtractor ex = new XWPFWordExtractor(doc);
-			//	out.write(ex.getText());
-			//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
-				
-			} 
-			 else if (officefile.getName().endsWith(".xlsx") || officefile.getName().endsWith(".XLSX")) {
-			String Content=new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText();
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
-
-				
-
-				bw.write(Content);
-
-				// no need to close it.
-				//bw.close();
-
-				System.out.println("Done");
-
-			} catch (IOException e) {
-
-				e.printStackTrace();
-
-			}
-			}
-			
-			 else if(officefile.getName().endsWith(".xls")|| officefile.getName().endsWith(".XLS")){
-				  ExcelExtractor wd = new ExcelExtractor(new HSSFWorkbook(new FileInputStream(officefile)));
-				  String Content= wd.getText();
-			        wd.close();
-			        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
-
-						
-
-						bw.write(Content);
-
-						// no need to close it.
-						//bw.close();
-
-						System.out.println("Done");
-
-					} catch (IOException e) {
-
-						e.printStackTrace();
-
-					}
-		}
-			 else if (officefile.getName().endsWith(".ppt") || officefile.getName().endsWith(".PPT")|| officefile.getName().endsWith(".PPTX")
-					 || officefile.getName().endsWith(".pptx")){
-				 XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(officefile)); 
-				 
-				 CoreProperties props = ppt.getProperties().getCoreProperties();
-			        String title = props.getTitle();
-			        System.out.println("Title: " + title);
-			        
-			        for (XSLFSlide slide: ppt.getSlides()) {
-			        	System.out.println("Starting slide...");
-			        	XSLFShape[] shapes = slide.getShapes();
-			        
-			        	for (XSLFShape shape: shapes) {
-			        		if (shape instanceof XSLFTextShape) {
-			        	        XSLFTextShape textShape = (XSLFTextShape)shape;
-			        	        String Content = textShape.getText();
-			        	        System.out.println("Text: " + Content);
-			        	   	 try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
-
-									
-
-									bw.write(Content);
-
-									// no need to close it.
-									//bw.close();
-
-									System.out.println("Done");
-
-			        		
-			        		
-			        	} catch (IOException e) {
-
-									e.printStackTrace();
-
-								}
-						        
-			        		}
-			        	}
-			        
-			        }
-			 }
-			
-			 
-			 else if (officefile.getName().endsWith(".pdf") || officefile.getName().endsWith(".PDF")) {
-								        //use file.renameTo() to rename the file
-			     
-				
-				
-				PdfReader pdfReader= new PdfReader(officefile.getAbsolutePath());
-				 PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
-			
-				    TextExtractionStrategy strategy;
-				  
-				    for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
-				        strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
-				        System.out.println("strategy.getResultantText()"+strategy.getResultantText());
-				     String Content=(strategy.getResultantText());
-				     try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
-
-							
-
-							bw.write(Content);
-
-							// no need to close it.
-							//bw.close();
-
-							System.out.println("Done");
-
-				    	} catch (IOException e) {
-
-							e.printStackTrace();
-
-						}
-				           pdfReader.close();
-					   
-				    }
-				    
-				
-			       
-			
-		
-		
-
-}
-}
 	}
+
 	private void readingInnerFolders(String tokenheader, String commonUrl, String child, String file, File dir,
-			final Gson gson, MetaDataForFolder metaDataForFolder) throws ClientProtocolException, IOException {
+			final Gson gson, MetaDataForFolder metaDataForFolder) throws ClientProtocolException, IOException, InterruptedException {
+
+
+
+		// get the name of inside folder
 		String insideFoldername=	metaDataForFolder.getName();
-		String localinsideFolderName=insideFoldername.replaceAll("%20", " "); 
+
+		// form the url to get the children files for inside folder
+
 		String OneDriveinsideFolderUrl =commonUrl+file+"/"+insideFoldername+child;
 
-		File dir1 = new File(dir.getPath()+"\\"+localinsideFolderName);
-		dir1.mkdirs();
+		// make a local directory with the folder structure
+
+		String localinsideFolderName=insideFoldername.replaceAll("%20", " ");  
+		File innerdir1 = new File(dir.getPath()+"\\"+localinsideFolderName);
+		innerdir1.mkdirs();
+
+		// make a call 
 		String responseFromAdaptor1= UserServiceImpl.doGet(OneDriveinsideFolderUrl, tokenheader);
+
 		OuterMetaData outerMetaData1 =gson.fromJson(responseFromAdaptor1, OuterMetaData.class);
+
 		List<String> downloadUrls1 = new ArrayList<String>();
+
 		for (MetaDataForFolder metaDataForFolder1:outerMetaData1.getValue()){
-			String Url1 = metaDataForFolder1.getMicrosoft_graph_downloadUrl();
-			downloadUrls1.add(Url1);
+//			if(metaDataForFolder1.getFolder()!=null &&
+//					(Integer.parseInt(metaDataForFolder1.getFolder().getChildCount())>=1)){
+//				readingInnerFolders(tokenheader, commonUrl, child, insideFoldername, innerdir1, gson, metaDataForFolder1);
+			
+				String Url1 = metaDataForFolder1.getMicrosoft_graph_downloadUrl();
+				downloadUrls1.add(Url1);
+			
 		}
 		ExecutorService executor1 = Executors.newFixedThreadPool(downloadUrls1.size());
 		for (String downloadUrl1:downloadUrls1){
 
 			System.out.println("saveDir------>"+saveDir);			
 			// multithreading framework for downloading files
-			Runnable download1= new MultiDownLoadExecutor(downloadUrl1, dir1.getPath());
+			Runnable download1= new MultiDownLoadExecutor(downloadUrl1, innerdir1.getPath());
 			executor1.execute(download1);
 		}
 		executor1.shutdown();
+//		if(  (executor1.awaitTermination(20, TimeUnit.SECONDS) )){
+//			List<File> filesInFolder = Files.walk(Paths.get(innerdir1.getPath()))
+//					.filter(Files::isRegularFile)
+//					.map(Path::toFile)
+//					.collect(Collectors.toList());
+//			ExecutorService converterExecutor = Executors.newFixedThreadPool(filesInFolder.size());
+//			for(File officefile:filesInFolder){
+//
+//				//parallel conversion of all files 
+//				Runnable converter= new ParallelConverter(officefile, insideFoldername);
+//				converterExecutor.execute(converter);
+//
+//			}
+//			converterExecutor.shutdown();
+//		}
 	}
 
 	public static void downloadFile(String fileURL, String saveDir)
@@ -509,5 +331,225 @@ public class UserServiceImpl implements UserService {
 		httpClient.getConnectionManager().shutdown();
 		return responseString;
 
+	}
+
+
+	// single thread to convert office files to txt format
+	private void convertToText(File officefile,String file) throws FileNotFoundException, IOException {
+		officefile.getAbsolutePath();
+		System.out.println("Rading file "+officefile.getName());
+		officefile.getName();
+
+		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParentFile());
+		System.out.println("officefile.getAbsolutePath();"+officefile.getAbsolutePath());
+		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParent());
+
+		int nameIndex=officefile.getName().lastIndexOf(".");
+		String textNaming1=officefile.getName().substring(0, nameIndex);
+		textNaming1.concat(".txt");
+
+		System.out.println("testing sai"+officefile.getParent()+"officefile.getPath()");
+		File textdirectory= new File(officefile.getParent()+"\\"+file+" TextFolder\\");
+		textdirectory.mkdir();
+		int index = officefile.getAbsolutePath().lastIndexOf(".");
+		String textdirectoryString =textdirectory.getPath()+"\\"+textNaming1;   
+
+		System.out.println("officefile.getAbsolutePath().substring(index)"+officefile.getAbsolutePath().substring(index));
+
+		final String FILENAME = textdirectoryString;
+		if (!officefile.exists()) {
+			System.out.println("Sorry does not Exists!");
+		}
+		//else
+		{
+			if (officefile.getName().endsWith(".docx") || officefile.getName().endsWith(".DOCX")) {
+				//	FileInputStream in=new FileInputStream(officefile);
+
+				String Content=(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+
+
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+
+
+					bw.write(Content);
+
+					// no need to close it.
+					//bw.close();
+
+					System.out.println("Done");
+
+				} catch (IOException e) {
+
+					e.printStackTrace();
+
+				}
+
+				//	XWPFDocument doc = new XWPFDocument(in);
+				//	XWPFWordExtractor ex = new XWPFWordExtractor(doc);
+				//	out.write(ex.getText());
+				//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+
+			} 
+
+
+			else if (officefile.getName().endsWith(".doc") || officefile.getName().endsWith(".DOC")) {
+				//	FileInputStream in=new FileInputStream(officefile);
+
+				wd = new WordExtractor(new FileInputStream(officefile));
+				String Content = wd.getText();
+
+
+
+
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+
+
+					bw.write(Content);
+
+					// no need to close it.
+					//bw.close();
+
+					System.out.println("Done");
+
+				} catch (IOException e) {
+
+					e.printStackTrace();
+
+				}
+
+				//	XWPFDocument doc = new XWPFDocument(in);
+				//	XWPFWordExtractor ex = new XWPFWordExtractor(doc);
+				//	out.write(ex.getText());
+				//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+
+			} 
+			else if (officefile.getName().endsWith(".xlsx") || officefile.getName().endsWith(".XLSX")) {
+				String Content=new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText();
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+
+
+					bw.write(Content);
+
+					// no need to close it.
+					//bw.close();
+
+					System.out.println("Done");
+
+				} catch (IOException e) {
+
+					e.printStackTrace();
+
+				}
+			}
+
+			else if(officefile.getName().endsWith(".xls")|| officefile.getName().endsWith(".XLS")){
+				ExcelExtractor wd = new ExcelExtractor(new HSSFWorkbook(new FileInputStream(officefile)));
+				String Content= wd.getText();
+				wd.close();
+				try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
+
+
+
+					bw.write(Content);
+
+					// no need to close it.
+					//bw.close();
+
+					System.out.println("Done");
+
+				} catch (IOException e) {
+
+					e.printStackTrace();
+
+				}
+			}
+			else if (officefile.getName().endsWith(".ppt") || officefile.getName().endsWith(".PPT")|| officefile.getName().endsWith(".PPTX")
+					|| officefile.getName().endsWith(".pptx")){
+				XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(officefile)); 
+
+				CoreProperties props = ppt.getProperties().getCoreProperties();
+				String title = props.getTitle();
+				System.out.println("Title: " + title);
+
+				for (XSLFSlide slide: ppt.getSlides()) {
+					System.out.println("Starting slide...");
+					XSLFShape[] shapes = slide.getShapes();
+
+					for (XSLFShape shape: shapes) {
+						if (shape instanceof XSLFTextShape) {
+							XSLFTextShape textShape = (XSLFTextShape)shape;
+							String Content = textShape.getText();
+							System.out.println("Text: " + Content);
+							try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
+
+
+
+								bw.write(Content);
+
+								// no need to close it.
+								//bw.close();
+
+								System.out.println("Done");
+
+
+
+							} catch (IOException e) {
+
+								e.printStackTrace();
+
+							}
+
+						}
+					}
+
+				}
+			}
+
+
+			else if (officefile.getName().endsWith(".pdf") || officefile.getName().endsWith(".PDF")) {
+				//use file.renameTo() to rename the file
+
+
+
+				PdfReader pdfReader= new PdfReader(officefile.getAbsolutePath());
+				PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
+
+				TextExtractionStrategy strategy;
+
+				for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
+					strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
+					System.out.println("strategy.getResultantText()"+strategy.getResultantText());
+					String Content=(strategy.getResultantText());
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
+
+
+
+						bw.write(Content);
+
+						// no need to close it.
+						//bw.close();
+
+						System.out.println("Done");
+
+					} catch (IOException e) {
+
+						e.printStackTrace();
+
+					}
+					pdfReader.close();
+
+				}
+
+
+
+
+
+
+
+			}
+		}
 	}
 }
