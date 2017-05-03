@@ -183,7 +183,7 @@ public class UserServiceImpl implements UserService {
                     .map(Path::toFile)
                     .collect(Collectors.toList());
 		for(File officefile:filesInFolder){
-			convertToText(officefile);
+			convertToText(officefile,file);
 		}
 		}
 		return "display";
@@ -191,20 +191,21 @@ public class UserServiceImpl implements UserService {
 		
 		}
 
-	private void convertToText(File officefile) throws FileNotFoundException, IOException {
+	private void convertToText(File officefile,String file) throws FileNotFoundException, IOException {
 		officefile.getAbsolutePath();
 		System.out.println("Rading file "+officefile.getName());
 		officefile.getName();
+		
 		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParentFile());
 		System.out.println("officefile.getAbsolutePath();"+officefile.getAbsolutePath());
-		
+		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParent());
 		
 		int nameIndex=officefile.getName().lastIndexOf(".");
 		 String textNaming1=officefile.getName().substring(0, nameIndex);
 		 textNaming1.concat(".txt");
 		 
 		 System.out.println("testing sai"+officefile.getParent()+"officefile.getPath()");
-		File textdirectory= new File(officefile.getParent()+"\\TextFolder\\");
+		File textdirectory= new File(officefile.getParent()+"\\"+file+" TextFolder\\");
 		textdirectory.mkdir();
 		 int index = officefile.getAbsolutePath().lastIndexOf(".");
 		 String textdirectoryString =textdirectory.getPath()+"\\"+textNaming1;   
