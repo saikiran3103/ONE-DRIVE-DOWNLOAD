@@ -182,9 +182,14 @@ public class UserServiceImpl implements UserService {
                     .filter(Files::isRegularFile)
                     .map(Path::toFile)
                     .collect(Collectors.toList());
+			ExecutorService converterExecutor = Executors.newFixedThreadPool(filesInFolder.size());
 		for(File officefile:filesInFolder){
+			
+			Runnable converter= new ParallelConverter(officefile, file);
+			converterExecutor.execute(converter);
 			convertToText(officefile,file);
 		}
+		converterExecutor.shutdown();
 		}
 		return "display";
 	
