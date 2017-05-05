@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.xmlbeans.XmlException;
@@ -56,9 +57,11 @@ public class HelloController {
 		@RequestMapping(value="/redirect",method = RequestMethod.GET )
 		public String  readToken( @RequestParam(value = "code", required = false) String code, HttpServletRequest request) throws URISyntaxException {
 //			System.out.println(request.get;
-			String path =request.getPathInfo();
-			
-			System.out.println("saiiiiii"+"   "+path);
+//			String path =request.getPathInfo();
+			System.out.println(request.getParameter("param1"));
+//			HttpSession session = request.getSession();
+//			session.setAttribute("token", request.getParameter("param1"));
+//			System.out.println("saiiiiii"+"   "+path);
 			
 //			request.getParameterMap();
 			
@@ -70,14 +73,26 @@ public class HelloController {
 			return service.finaldownload(tokenAndPath);
 		}
 		
-		@RequestMapping(method = RequestMethod.POST, value="path")
+		@RequestMapping(method = RequestMethod.POST, value="path1")
 	    public String getTokenAndPath(HttpServletRequest request ) throws URISyntaxException, IOException, JsonSyntaxException, IllegalStateException, InterruptedException, NumberFormatException, OpenXML4JException, XmlException {
-			System.out.println(request.getParameter("param1"));
+//			System.out.println(request.getParameter("param1"));
 			System.out.println(request.getParameter("param2"));
+			HttpSession session = request.getSession();
+			System.out.println(session.getAttribute("token"));
 			TokenAndPath tokenAndPath=new TokenAndPath();
-			tokenAndPath.setToken(request.getParameter("param1"));
+			tokenAndPath.setToken((String)session.getAttribute("token"));
 			tokenAndPath.setPath(request.getParameter("param2"));
 			return service.finaldownload(tokenAndPath);
+			//return "displayPath";
+		}
+		
+		@RequestMapping(method = RequestMethod.POST, value="path")
+	    public String getTokenAndPath1(HttpServletRequest request ) throws URISyntaxException, IOException, JsonSyntaxException, IllegalStateException, InterruptedException, NumberFormatException, OpenXML4JException, XmlException {
+			HttpSession session = request.getSession();
+			session.setAttribute("token", request.getParameter("param1"));
+			System.out.println(request.getParameter("param1"));
+			System.out.println(session.getAttribute("token"));
+			return "test1";
 			//return "displayPath";
 		}
 		

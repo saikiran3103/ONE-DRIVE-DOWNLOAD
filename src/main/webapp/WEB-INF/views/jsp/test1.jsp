@@ -2,7 +2,7 @@
 <HEAD>
 <TITLE>Your Title Here</TITLE>
 </HEAD>
-<BODY onload="javascript:submitform();" BGCOLOR="FFFFFF">
+<BODY  BGCOLOR="FFFFFF">
 
 <article>
   <header>
@@ -13,9 +13,9 @@
   
 </article>
 <div style="text-align:center"> 
-<form name="myForm" action="path" method="POST">
+<form name="myForm" action="path1" method="POST">
 Enter the shared  One drive URL : <input id="text1" type="text" >
-<input id="param1" type="hidden" name="param1" value="Test">
+<!-- <input id="param1" type="hidden" name="param1" value="Test"> -->
 <input id="param2" type="hidden" name="param2" value="Test2">
 <input type="button" Value="Download And Convert" onclick="submitform();">
 </form>
@@ -27,7 +27,7 @@ Enter the shared  One drive URL : <input id="text1" type="text" >
 function submitform(){
 	
 	document.getElementById("param2").value = document.getElementById("text1").value;
-	<!--get the token value from header-->
+	<!--get the token value from headerx-->
 	location.parseHash = function(){
 		   var hash = (this.hash ||'').replace(/^#/,'').split('&'),
 		       parsed = {};
@@ -39,9 +39,9 @@ function submitform(){
 		   return parsed;
 		};
 
-		var obj= location.parseHash();
+		/* var obj= location.parseHash();
 		    obj.hash;  //fdg 
-		    document.getElementById("param1").value = obj.access_token;   //value2x
+		    document.getElementById("param1").value = obj.access_token;   //value2 */
 		    document.myForm.submit();
 }
 
