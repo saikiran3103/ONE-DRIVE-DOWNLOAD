@@ -14,7 +14,13 @@
 
 <article>
   <header>
-  <div style="text-align:center">  <h1>Download the files from Microsoft One Drive cloud from the shared link</h1>
+  <div style="text-align:center">  <h1 style="
+    font-size: 34pt;
+    font-family: serif;
+    font-style: italic;
+    font-feature-settings: initial;
+    color: rgba(169, 66, 66, 0.98);"
+>Download the files from Microsoft One Drive cloud from the shared link</h1>
     </div>
     
   </header>
@@ -26,11 +32,22 @@
  
 <div class="ms-Grid-col ms-u-mdPush1 ms-u-md9 ms-u-lgPush1 ms-u-lg6">
 			<div>
-			<div style="text-align:center">	<p class="ms-font">Use the button below to connect to Office 365.</p></div>
+			<div style="text-align:center">
+				<p class="ms-font" style="
+    font-size: 22pt;
+    font-family: monospace;
+    font-style: inherit;
+    font-feature-settings: initial;
+    color: #0b83e9;
+    width: 1545px;
+    margin-top: 85px;
+    ">Use the button below to connect to Office 365.</p>
+    </div>
 				
 				<form action="token" method="GET">
 
-<div style="text-align:center"><input type="submit" value="Connect to Office 365" /></div>
+<div style="text-align:center" >
+<input type="submit" style="font-size:13pt;color:white;background-color:green;border: 13px solid #336600;padding:3px;" value="Connect to Office 365"></div>
 </form>
 				
 					

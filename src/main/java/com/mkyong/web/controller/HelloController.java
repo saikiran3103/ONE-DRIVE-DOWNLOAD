@@ -31,11 +31,11 @@ public class HelloController {
 		this.service = service;
 	}
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/model", method = RequestMethod.GET)
 	public String printWelcome(ModelMap model) {
 
 		model.addAttribute("message", "Spring 3 MVC Hello World");
-		return "hello";
+		return "model";
 
 	}
 
@@ -43,11 +43,23 @@ public class HelloController {
 	public ModelAndView hello(@PathVariable("name") String name) {
 
 		ModelAndView model = new ModelAndView();
-		model.setViewName("hello");
+		model.setViewName("model");
 		model.addObject("msg", name);
-
+		TokenAndPath tokenAndPath = new TokenAndPath();
+		tokenAndPath.setPath("/sai/path");
+		tokenAndPath.setToken("12345token");
+		model.addObject("token", tokenAndPath);
+		
 		return model;
 		
+	}
+	
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String connect(ModelMap model) {
+
+		
+		return "hello";
+
 	}
 		@RequestMapping(value = "/token", method = RequestMethod.GET)
 		public String  authorizeAndGetUserToken() throws URISyntaxException {
