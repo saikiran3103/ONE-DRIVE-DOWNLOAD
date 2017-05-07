@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -30,17 +29,19 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.hssf.extractor.ExcelExtractor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFShape;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
-import org.apache.poi.POIXMLProperties.*;
-import org.apache.poi.xslf.usermodel.*;
-import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
 	private static final int BUFFER_SIZE = 4096;
 
-	private InnerFoldersReaderUtility innerFoldersReaderUtility;
+	
 	private String home = System.getProperty("user.home");
 
 	private String saveDir = home;
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String authorizeAndGetUserToken() throws URISyntaxException  {
-		// TODO Auto-generated method stub
+		
 		String url1="https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=c00a4c26-e64b-459b-91f6-31571b802ae4&scope=files.read.all&response_type=token&redirect_uri=http://localhost:8080/onedrive/redirect";
 
 
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService {
 				Desktop.getDesktop().browse(new URI(url1));
 			}
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -89,7 +90,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public String finaldownload(TokenAndPath tokenAndPath) throws IOException, IllegalStateException, JsonSyntaxException, InterruptedException, NumberFormatException {
-		// TODO Auto-generated method stub
+	
 
 		String access_token= tokenAndPath.getToken();
 
@@ -108,9 +109,12 @@ public class UserServiceImpl implements UserService {
 
 		String file = base_path.substring(indexAfterDocuments);
 		
+		int local_directory =file.lastIndexOf("/")+1;
+		String local_folder = file.substring(local_directory);
+		
 		String child =":/children";
 
-		String MakeLocalDirectory =file.replace("%20", " ");
+		String MakeLocalDirectory =local_folder.replace("%20", " ");
 
 
 		String completeurl= commonUrl+"drive/root:/"+file+child;
@@ -119,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
 
 		//making a directory
-		File dir = new File(saveDir+"\\"+MakeLocalDirectory);
+		File dir = new File(saveDir+"\\Downloads\\"+MakeLocalDirectory);
 		dir.mkdirs();
 
 

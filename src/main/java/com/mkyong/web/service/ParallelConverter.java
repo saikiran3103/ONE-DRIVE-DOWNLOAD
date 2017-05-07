@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.apache.poi.POIXMLProperties.CoreProperties;
 import org.apache.poi.hssf.extractor.ExcelExtractor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -27,6 +28,9 @@ import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 public class ParallelConverter implements Runnable {
 
 
+	final static Logger logger = Logger.getLogger(ParallelConverter.class);
+	
+	
 	private File officefile;
 
 	private String originalFolderName;
@@ -49,10 +53,15 @@ public class ParallelConverter implements Runnable {
 
 		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParentFile());
 		System.out.println("officefile.getAbsolutePath();"+officefile.getAbsolutePath());
-		System.out.println("officefile.getAbsoluteFile().getParentFile()"+officefile.getAbsoluteFile().getParent());
+		
 
+		
+		
+	
 		int nameIndex=officefile.getName().lastIndexOf(".");
+	
 		String textNaming1=officefile.getName().substring(0, nameIndex);
+		
 		textNaming1.concat(".txt");
 
 		System.out.println("testing sai"+officefile.getParent()+"officefile.getPath()");
@@ -64,7 +73,7 @@ public class ParallelConverter implements Runnable {
 		File textdirectory= new File(officefile.getParent()+"\\"+textFolderName+" TextFolder\\");
 		textdirectory.mkdir();
 		int index = officefile.getAbsolutePath().lastIndexOf(".");
-		String textdirectoryString =textdirectory.getPath()+"\\"+textNaming1;   
+		String textdirectoryString =textdirectory.getPath()+"\\"+textNaming1.concat(".txt");   
 
 		System.out.println("officefile.getAbsolutePath().substring(index)"+officefile.getAbsolutePath().substring(index));
 
@@ -72,22 +81,25 @@ public class ParallelConverter implements Runnable {
 		if (!officefile.exists()) {
 			System.out.println("Sorry does not Exists!");
 		}
-		//else
+		else
 		{
 			if (officefile.getName().endsWith(".docx") || officefile.getName().endsWith(".DOCX")) {
 				//	FileInputStream in=new FileInputStream(officefile);
 
-				String Content;
-				try {
-					Content = (new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
-
+				String content;
+				try (XWPFWordExtractor xWPFWordExtractor=new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile)))){
+					
+					content=	xWPFWordExtractor.getText();
+				//	Content = (new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
+					
+       System.out.println(" This is the content of the file "+officefile.getName()+content);
 
 
 					try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
 
 
 
-						bw.write(Content);
+						bw.write(content);
 
 						// no need to close it.
 						//bw.close();
@@ -95,14 +107,16 @@ public class ParallelConverter implements Runnable {
 						System.out.println("Done");
 
 					} catch (IOException e) {
-
+						logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 						e.printStackTrace();
 
 					}
 				}
 				catch (IOException e1) {
-					// TODO Auto-generated catch block
+					
+					logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e1.getMessage());
 					e1.printStackTrace();
+					
 				}
 
 				//	XWPFDocument doc = new XWPFDocument(in);
@@ -115,13 +129,13 @@ public class ParallelConverter implements Runnable {
 
 			else if (officefile.getName().endsWith(".doc") || officefile.getName().endsWith(".DOC")) {
 				//	FileInputStream in=new FileInputStream(officefile);
-				try{	
-					WordExtractor wd;
+				try(WordExtractor wd= new WordExtractor(new FileInputStream(officefile))){	
+				//	WordExtractor wd= new WordExtractor(new FileInputStream(officefile));
 
-					wd = new WordExtractor(new FileInputStream(officefile));
+				//	wd = new WordExtractor(new FileInputStream(officefile));
 
 					String Content = wd.getText();
-
+				
 
 
 
@@ -137,7 +151,7 @@ public class ParallelConverter implements Runnable {
 						System.out.println("Done");
 
 					} catch (IOException e) {
-
+						logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 						e.printStackTrace();
 
 					}
@@ -148,21 +162,24 @@ public class ParallelConverter implements Runnable {
 					//out.write(new XWPFWordExtractor(new XWPFDocument(new FileInputStream(officefile))).getText());
 				}	
 				catch (IOException e) {
-
+					logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 					e.printStackTrace();
 
 				}
 			} 
 			else if (officefile.getName().endsWith(".xlsx") || officefile.getName().endsWith(".XLSX")) {
-				String Content;
-				try {
-					Content = new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText();
+				String content;
+				try(XSSFExcelExtractor xSSFExcelExtractor = new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile)))) {
+					
+					
+					content=	xSSFExcelExtractor.getText();
+					//Content = new XSSFExcelExtractor(new XSSFWorkbook(new FileInputStream(officefile))).getText();
 
 					try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME))) {
 
 
 
-						bw.write(Content);
+						bw.write(content);
 
 						// no need to close it.
 						//bw.close();
@@ -170,21 +187,21 @@ public class ParallelConverter implements Runnable {
 						System.out.println("Done");
 
 					} catch (IOException e) {
-
+						logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 						e.printStackTrace();
 
 					}
 				}
 				catch (IOException e1) {
-					// TODO Auto-generated catch block
+					logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e1.getMessage());
 					e1.printStackTrace();
 				}
 			}
 
 			else if(officefile.getName().endsWith(".xls")|| officefile.getName().endsWith(".XLS")){
-				ExcelExtractor wd;
-				try {
-					wd = new ExcelExtractor(new HSSFWorkbook(new FileInputStream(officefile)));
+				
+				try(ExcelExtractor wd = new ExcelExtractor(new HSSFWorkbook(new FileInputStream(officefile)))) {
+				//	wd = new ExcelExtractor(new HSSFWorkbook(new FileInputStream(officefile)));
 
 					String Content= wd.getText();
 					wd.close();
@@ -200,21 +217,21 @@ public class ParallelConverter implements Runnable {
 						System.out.println("Done");
 
 					} catch (IOException e) {
-
+						logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 						e.printStackTrace();
 
 					}
 				}
 				catch (IOException e1) {
-					// TODO Auto-generated catch block
+					logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e1.getMessage());
 					e1.printStackTrace();
 				}
 			}
 			else if (officefile.getName().endsWith(".ppt") || officefile.getName().endsWith(".PPT")|| officefile.getName().endsWith(".PPTX")
 					|| officefile.getName().endsWith(".pptx")){
-				XMLSlideShow ppt;
+				
 				try {
-					ppt = new XMLSlideShow(new FileInputStream(officefile));
+					XMLSlideShow ppt = new XMLSlideShow(new FileInputStream(officefile));
 
 
 					CoreProperties props = ppt.getProperties().getCoreProperties();
@@ -244,7 +261,7 @@ public class ParallelConverter implements Runnable {
 
 
 								} catch (IOException e) {
-
+									logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 									e.printStackTrace();
 
 								}
@@ -255,7 +272,7 @@ public class ParallelConverter implements Runnable {
 					}
 				}
 				catch (IOException e1) {
-					// TODO Auto-generated catch block
+					logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e1.getMessage());
 					e1.printStackTrace();
 				} 
 			}
@@ -277,12 +294,12 @@ public class ParallelConverter implements Runnable {
 					for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
 						strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
 						System.out.println("strategy.getResultantText()"+strategy.getResultantText());
-						String Content=(strategy.getResultantText());
+						String content=(strategy.getResultantText());
 						try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
 
 
 
-							bw.write(Content);
+							bw.write(content);
 
 							// no need to close it.
 							//bw.close();
@@ -290,6 +307,7 @@ public class ParallelConverter implements Runnable {
 							System.out.println("Done");
 
 						} catch (IOException e) {
+							logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
 
 							e.printStackTrace();
 
@@ -303,13 +321,15 @@ public class ParallelConverter implements Runnable {
 
 
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
+					logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e1.getMessage());
+
 					e1.printStackTrace();
 				}		
 
 			}
 		}
+	
+
+	
 	}
-
-
 }

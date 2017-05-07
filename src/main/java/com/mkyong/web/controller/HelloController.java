@@ -95,7 +95,7 @@ public class HelloController {
 			tokenAndPath.setToken((String)session.getAttribute("token"));
 			tokenAndPath.setPath(request.getParameter("param2"));
 			return service.finaldownload(tokenAndPath);
-			//return "displayPath";
+			
 		}
 		
 		@RequestMapping(method = RequestMethod.POST, value="path")
