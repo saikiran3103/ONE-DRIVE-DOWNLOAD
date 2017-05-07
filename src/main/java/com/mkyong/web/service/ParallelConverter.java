@@ -3,14 +3,21 @@ package com.mkyong.web.service;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.POIXMLProperties.CoreProperties;
+import org.apache.poi.hslf.HSLFSlideShow;
+import org.apache.poi.hslf.model.TextRun;
+import org.apache.poi.hslf.record.Slide;
+import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.extractor.ExcelExtractor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.poifs.crypt.dsig.facets.OOXMLSignatureFacet;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
@@ -227,7 +234,7 @@ public class ParallelConverter implements Runnable {
 					e1.printStackTrace();
 				}
 			}
-			else if (officefile.getName().endsWith(".ppt") || officefile.getName().endsWith(".PPT")|| officefile.getName().endsWith(".PPTX")
+			else if ( officefile.getName().endsWith(".PPTX")
 					|| officefile.getName().endsWith(".pptx")){
 				
 				try {
@@ -245,7 +252,7 @@ public class ParallelConverter implements Runnable {
 						for (XSLFShape shape: shapes) {
 							if (shape instanceof XSLFTextShape) {
 								XSLFTextShape textShape = (XSLFTextShape)shape;
-								String Content = textShape.getText();
+								String Content = " "+textShape.getText();
 								System.out.println("Text: " + Content);
 								try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
 
@@ -277,7 +284,53 @@ public class ParallelConverter implements Runnable {
 				} 
 			}
 
+			else if (officefile.getName().endsWith(".ppt") || officefile.getName().endsWith(".PPT")){
+				try {
+					InputStream fis= new FileInputStream(officefile);
+					HSLFSlideShow show=new HSLFSlideShow(fis);
+					SlideShow ss=new SlideShow(show);
+					
+					org.apache.poi.hslf.model.Slide[] slides=ss.getSlides();
+					StringBuilder builder = new StringBuilder();
+					for(int x=0; x<slides.length; x++)
+					{
+					TextRun[] runs = slides[x].getTextRuns();
+					for(int j=0; j<runs.length; j++) {
+					TextRun run = runs[j];
+					if(run != null) {
+					String content = " "+run.getText();
+					try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILENAME,true))) {
 
+
+
+						bw.write(content);
+
+						// no need to close it.
+						//bw.close();
+
+						System.out.println("Done");
+
+
+
+					} catch (IOException e) {
+						logger.error(" error occured while extracting and converting   "+officefile.getAbsolutePath()+"     " + e.getMessage());
+						e.printStackTrace();
+
+					}
+					builder.append(content);
+					System.out.println(content);
+					}
+					}
+					}	} 
+			
+				catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			else if (officefile.getName().endsWith(".pdf") || officefile.getName().endsWith(".PDF")) {
 				//use file.renameTo() to rename the file
 

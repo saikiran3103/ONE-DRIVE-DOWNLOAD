@@ -2,7 +2,7 @@
 <HEAD>
 <TITLE>Your Title Here</TITLE>
 </HEAD>
-<BODY  BGCOLOR="FFFFFF">
+<BODY  BGCOLOR="blue">
 
 <article>
   <header>

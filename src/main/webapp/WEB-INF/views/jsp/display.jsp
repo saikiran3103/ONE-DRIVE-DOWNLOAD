@@ -7,6 +7,16 @@
 <title>Your files are downloaded in to your default directory</title>
 </head>
 <body>
-<center><h2>Your files are downloaded in to your default download directory</h2></center>
+
+        
+   <div style="text-align:center">  <h1 style="
+    font-size: 34pt;
+    font-family: serif;
+    font-style: italic;
+    font-feature-settings: initial;
+    color: rgba(169, 66, 66, 0.98);">Your files are downloaded in to your default download directory</h1>
+    
+    </div>
+ 
 </body>
 </html>
